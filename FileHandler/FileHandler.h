@@ -21,7 +21,7 @@ struct ApacheLogEntry {
 };
 
 enum LogFieldIndex {
-    IP_ADDRESS = 0,  // Index 0 pour l'adresse IP
+    IP_ADDRESS,  // Index 0 pour l'adresse IP
     IDENTITY,    
     USER,  
     DATE_TIME,
