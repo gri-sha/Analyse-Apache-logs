@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <set>
 #include <string>
+#include <vector>
 using namespace std;
 
 struct PageInfo
@@ -16,13 +17,12 @@ class Graphe
 {
 public:
     void addVisit();
-    void getTop(int n) const;
-    void getNodes() const;
+    vector<string, int> getTop(int n, int h=-1, bool exclude = false) const;
+    void createFile(int h=-1, bool exclude = false) const;
+
 protected:
     unordered_map<string, PageInfo> table;
     set<string> all_vertices;
     set<string> all_html;
-    set<string> all_img;
-    set<string> all_js;
 };
 #endif
