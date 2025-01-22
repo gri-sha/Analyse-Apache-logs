@@ -1,7 +1,7 @@
 #include <vector>
 using namespace std;
 
-enum = {... }; // pour donner un nom plus explicit aux index (autodocument)
+enum = {... } // pour donner un nom plus explicit aux index (autodocument)
 class FileHandler
 {
 	public : 
