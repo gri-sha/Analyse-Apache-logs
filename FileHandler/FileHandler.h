@@ -39,8 +39,8 @@ public:
 
     FileHandler ( const string& fileName ) : fileName(fileName) {}
 
-    void lireDocument ( void ) ;
-    string lireChamps ( void ) ;
+    void readDocument ( void ) ;
+    string readLog ( void ) ;
 
     // créer une surcharge de l'opérateur << ? Utile ou pas, je ne sais pas. A faire si temps 
 
