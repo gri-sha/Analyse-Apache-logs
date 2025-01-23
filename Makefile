@@ -1,5 +1,5 @@
 CXX = g++                              
-CXXFLAGS = -Wall -std=c++11 -v -DSETTING
+CXXFLAGS = -Wall -std=c++11 # -DSETTING -v
 
 OBJ = ./bin
 EXE = ./analog

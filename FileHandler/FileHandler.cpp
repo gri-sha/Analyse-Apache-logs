@@ -15,7 +15,7 @@
 #include "FileHandler.h"
 using namespace std;
 
-bool FileHandler::readLine(ifstream &fichier)
+bool FileHandler::readLine(ifstream &fichier, bool dashIgnore)
 {
     logStruct log;
     string useless;
@@ -51,16 +51,25 @@ bool FileHandler::readLine(ifstream &fichier)
         !getline(fichier, log.userAgent, '"'))
         return false;
 
+    if (dashIgnore && (log.resource == "-" || log.referer == "-"))
+    {
+#ifdef SETTING
+        cout << "False identifiers, log skipped." << endl;
+#endif
+        return false;
+    }
+
     logHistory.push_back(log);
     return true;
 }
 
-bool FileHandler::readDocument(int n)
+bool FileHandler::readDocument(int n, bool dashIgnore)
 {
+    int count = 0;
     ifstream fichier(fileName, ios::in);
     if (!fichier.is_open())
     {
-        cerr << "Erreur : Impossible to open the file." << endl;
+        cerr << "Error : Impossible to open the file." << endl;
         return false;
     }
     // read all the line until EOF
@@ -68,21 +77,25 @@ bool FileHandler::readDocument(int n)
     {
         for (int i = 0; i < n; ++i)
         {
-            readLine(fichier);
+            readLine(fichier, dashIgnore);
         }
     }
     else
     {
         while (fichier)
         {
-            if (!readLine(fichier))
+            if (!readLine(fichier, dashIgnore))
             {
 #ifdef SETTING
                 cout << "Line skipped." << endl;
 #endif
+                continue;
             }
+            ++count;
         }
     }
+    cout << count << endl;
+    cout << logHistory.size() << endl;
     return true;
 }
 
@@ -106,12 +119,42 @@ ostream &operator<<(ostream &out, FileHandler &handler)
     return out;
 }
 
+string FileHandler::extractDomain(const string url)
+{
+    if (url == "-")
+        return url;
+
+    size_t start = url.find("://");
+    if (start == string::npos)
+        return "-";
+
+    start += 3;
+
+    size_t end = url.find('/', start);
+    if (end == string::npos)
+    {
+        end = url.length();
+    }
+
+    string domain = url.substr(start, end - start);
+    if (domain.find("www.") == 0)
+    {
+        domain = domain.substr(4);
+    }
+
+    return domain;
+}
+
 Graph *FileHandler::createGraph() const
 {
-    Graph* graph = new Graph();
+
+    Graph *graph = new Graph();
     for (int i = 0; i < logHistory.size(); ++i)
     {
-        graph->addVisit(logHistory[i].resource, logHistory[i].referer);
+        string domainReferer = extractDomain(logHistory[i].referer);
+        string domainResource = extractDomain(logHistory[i].resource);
+
+        graph->addVisit(domainResource, domainReferer);
     }
     return graph;
 }
