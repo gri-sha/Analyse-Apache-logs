@@ -1,5 +1,5 @@
-#include "./FileHandler/FileHandler.h"
-#include "./Graph/Graph.h"
+#include "../include/FileHandler.h"
+#include "../include/Graph.h"
 #include <iostream>
 #include <string>
 

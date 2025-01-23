@@ -8,7 +8,7 @@
 #ifndef FILEHANDLER_H
 #define FILEHANDLER_H
 
-#include "../Graph/Graph.h"
+#include "Graph.h"
 #include <string>
 #include <vector>
 using namespace std;
