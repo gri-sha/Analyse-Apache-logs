@@ -1,34 +1,31 @@
-CXX = g++                              
+CXX = g++
 CXXFLAGS = -Wall -std=c++11 # -DSETTING -v
 
-OBJ = ./bin
-EXE = ./analog
+SRC = ./src
+INC = ./include
+OBJ = ./obj
+EXE = analog
 
-# Object files
 OBJS = $(OBJ)/Graph.o $(OBJ)/FileHandler.o $(OBJ)/main.o
 
-# build the final executable
 $(EXE): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(EXE)
 
-# compile Graph.cpp
-$(OBJ)/Graph.o: ./Graph/Graph.cpp ./Graph/Graph.h
+$(OBJ)/Graph.o: $(SRC)/Graph.cpp $(INC)/Graph.h
 	@mkdir -p $(OBJ)
-	$(CXX) $(CXXFLAGS) -c Graph/Graph.cpp -o $(OBJ)/Graph.o
+	$(CXX) $(CXXFLAGS) -I$(INC) -c $(SRC)/Graph.cpp -o $(OBJ)/Graph.o
 
-# compile FileHandler.cpp
-$(OBJ)/FileHandler.o: ./FileHandler/FileHandler.cpp ./FileHandler/FileHandler.h
+$(OBJ)/FileHandler.o: $(SRC)/FileHandler.cpp $(INC)/FileHandler.h
 	@mkdir -p $(OBJ)
-	$(CXX) $(CXXFLAGS) -c FileHandler/FileHandler.cpp -o $(OBJ)/FileHandler.o
+	$(CXX) $(CXXFLAGS) -I$(INC) -c $(SRC)/FileHandler.cpp -o $(OBJ)/FileHandler.o
 
-# compile main.cpp
-$(OBJ)/main.o: main.cpp
+$(OBJ)/main.o: $(SRC)/main.cpp
 	@mkdir -p $(OBJ)
-	$(CXX) $(CXXFLAGS) -c main.cpp -o $(OBJ)/main.o
+	$(CXX) $(CXXFLAGS) -I$(INC) -c $(SRC)/main.cpp -o $(OBJ)/main.o
 
 clean:
-	rm -rf $(OBJ) $(EXE)
+	rm -rf $(OBJ) analog
 
 all: $(EXE)
 
-.PHONY: clean all
+.PHONY: clean all install analog

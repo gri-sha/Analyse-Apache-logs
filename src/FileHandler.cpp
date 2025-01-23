@@ -6,13 +6,13 @@
 
 //---------- Réalisation de la classe <FileHandler> (fichier FileHandler.cpp) ------------
 
+#include "../include/FileHandler.h"
 #include <string>
 #include <vector>
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include "FileHandler.h"
 using namespace std;
 
 bool FileHandler::readLine(ifstream &fichier, bool dashIgnore)

@@ -34,5 +34,7 @@
 .DS_Store
 .vscode
 
+build
+obj
 bin
 analog
