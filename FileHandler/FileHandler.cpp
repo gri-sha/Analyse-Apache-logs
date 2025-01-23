@@ -1,8 +1,6 @@
 /*************************************************************************
-                         
-                             -------------------
-    début                : 22/01
-    copyright            : (C) $YEAR$ par Claire Prevost, Grisha Savchenko, Andreea-Cristiana Vlad, Elise Bachet
+    début                : 22/01/2025
+    copyright            : (C) 2025 par Claire Prevost, Grigory Savchenko, Andreea-Cristiana Vlad, Elise Bachet
     e-mail               : claire.prevost@insa-lyon.fr, grigory.savchenko@insa-lyon.fr, andreea-cristiana.vlad@insa-lyon.fr, elise.bachet@insa-lyon.fr
 *************************************************************************/
 
@@ -14,15 +12,12 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-# include "FileHandler.h"
+#include "FileHandler.h"
 using namespace std;
 
-
-
-
-bool FileHandler :: readLine( ifstream& fichier ) {
-
-    logStruct log;           // déclarer la structure de données log de la ligne en entrée
+bool FileHandler::readLine(ifstream &fichier)
+{
+    logStruct log;
     string useless;
 
     // Parsing des champs
@@ -32,7 +27,7 @@ bool FileHandler :: readLine( ifstream& fichier ) {
         return false;
 
     // Extraction de la date et heure entre crochets []
-    if (!getline(fichier, useless, '[') || 
+    if (!getline(fichier, useless, '[') ||
         !getline(fichier, log.dateTime, ']'))
         return false;
 
@@ -57,61 +52,66 @@ bool FileHandler :: readLine( ifstream& fichier ) {
         return false;
 
     logHistory.push_back(log);
-
-    
     return true;
-
-
 }
 
-bool FileHandler :: readDocument() {
-
-    ifstream fichier(fileName, ios::in);    
-
-    if (!fichier.is_open()) {
-        cerr << "Erreur : Impossible d'ouvrir le fichier.\n";
+bool FileHandler::readDocument(int n)
+{
+    ifstream fichier(fileName, ios::in);
+    if (!fichier.is_open())
+    {
+        cerr << "Erreur : Impossible to open the file." << endl;
         return false;
     }
-
-    logStruct line;
-    while (readLine(fichier)) {}
+    // read all the line until EOF
+    if (n >= 1)
+    {
+        for (int i = 0; i < n; ++i)
+        {
+            readLine(fichier);
+        }
+    }
+    else
+    {
+        while (fichier)
+        {
+            if (!readLine(fichier))
+            {
+#ifdef SETTING
+                cout << "Line skipped." << endl;
+#endif
+            }
+        }
+    }
     return true;
 }
 
-
-ostream & operator << (ostream & out, FileHandler & file)
+ostream &operator<<(ostream &out, FileHandler &handler)
 {
-    for (int i=0 ; i < file.logHistory.size() ; ++i)
+    for (int i = 0; i < handler.logHistory.size(); ++i)
     {
-        cout << "log " << i << " : " << endl;
-        cout << "\tIP Address: " << file.logHistory[i].ipAddress << endl;
-        cout << "\tIdentity: " << file.logHistory[i].identity << endl;
-        cout << "\tUser: " << file.logHistory[i].user << endl;
-        cout << "\tDate Time: " << file.logHistory[i].dateTime << endl;
-        cout << "\tHTTP Method: " << file.logHistory[i].httpMethod << endl;
-        cout << "\tResource: " << file.logHistory[i].resource << endl;
-        cout << "\tHTTP Version: " << file.logHistory[i].httpVersion << endl;
-        cout << "\tHTTP Status Code: " << file.logHistory[i].httpStatusCode << endl;
-        cout << "\tResponse Size: " << file.logHistory[i].responseSize << endl;
-        cout << "\tReferer: " << file.logHistory[i].referer << endl;
-        cout << "\tUser Agent: " << file.logHistory[i].userAgent << endl;
+        cout << "log " << i + 1 << " : " << endl;
+        cout << "\tIP Address: " << handler.logHistory[i].ipAddress << endl;
+        cout << "\tIdentity: " << handler.logHistory[i].identity << endl;
+        cout << "\tUser: " << handler.logHistory[i].user << endl;
+        cout << "\tDate Time: " << handler.logHistory[i].dateTime << endl;
+        cout << "\tHTTP Method: " << handler.logHistory[i].httpMethod << endl;
+        cout << "\tResource: " << handler.logHistory[i].resource << endl;
+        cout << "\tHTTP Version: " << handler.logHistory[i].httpVersion << endl;
+        cout << "\tHTTP Status Code: " << handler.logHistory[i].httpStatusCode << endl;
+        cout << "\tResponse Size: " << handler.logHistory[i].responseSize << endl;
+        cout << "\tReferer: " << handler.logHistory[i].referer << endl;
+        cout << "\tUser Agent: " << handler.logHistory[i].userAgent << endl;
     }
-    
     return out;
 }
 
-
-
-
-int main() 
+Graph *FileHandler::createGraph() const
 {
-    FileHandler myFileHandler("../exemple.log");
-    myFileHandler.readDocument();
-    cout << myFileHandler << endl;
-    return 0;
-
+    Graph* graph = new Graph();
+    for (int i = 0; i < logHistory.size(); ++i)
+    {
+        graph->addVisit(logHistory[i].resource, logHistory[i].referer);
+    }
+    return graph;
 }
-
-    
-
-
