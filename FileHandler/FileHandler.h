@@ -47,14 +47,16 @@ class FileHandler
 {
 public:
     FileHandler(const string &fileName) : fileName(fileName) {}
-    bool readDocument(int n = -1);
-    bool readLine(ifstream &fichier);
+    bool readDocument(int n = -1, bool dashIgnore=false);
+    bool readLine(ifstream &fichier, bool dashIgnore=false);
     friend ostream &operator<<(ostream &out, FileHandler &file);
     Graph *createGraph() const;
+    static string extractDomain(const string url);
 
 protected:
-    string fileName;
     vector<logStruct> logHistory;
+    string fileName;
+    const string baseURL = "intranet-if.insa-lyon.fr";
 };
 
 #endif
