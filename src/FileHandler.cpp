@@ -20,36 +20,36 @@ bool FileHandler::readLine(ifstream &fichier, bool dashIgnore)
     logStruct log;
     string useless;
 
-    // Parsing des champs
     if (!getline(fichier, log.ipAddress, ' ') ||
         !getline(fichier, log.identity, ' ') ||
         !getline(fichier, log.user, ' '))
         return false;
 
-    // Extraction de la date et heure entre crochets []
     if (!getline(fichier, useless, '[') ||
         !getline(fichier, log.dateTime, ']'))
         return false;
 
-    // Extraction de la requête HTTP entre guillemets ""
     if (!getline(fichier, useless, '"') ||
         !getline(fichier, log.httpMethod, ' ') ||
         !getline(fichier, log.resource, ' ') ||
         !getline(fichier, log.httpVersion, '"'))
         return false;
 
-    // Extraction des autres champs
     if (!getline(fichier, useless, ' ') ||
         !getline(fichier, log.httpStatusCode, ' ') ||
         !getline(fichier, log.responseSize, ' '))
         return false;
 
-    // Extraction du référent et de l'agent utilisateur
     if (!getline(fichier, useless, '"') ||
         !getline(fichier, log.referer, '"') ||
         !getline(fichier, useless, '"') ||
-        !getline(fichier, log.userAgent, '"'))
+        !getline(fichier, log.userAgent, '"') ) //||
         return false;
+
+    if (fichier.peek()== '\n') 
+    {
+        fichier.get();
+    }
 
     if (dashIgnore && (log.resource == "-" || log.referer == "-"))
     {
@@ -69,10 +69,10 @@ bool FileHandler::readDocument(int n, bool dashIgnore)
     ifstream fichier(fileName, ios::in);
     if (!fichier.is_open())
     {
-        cerr << "Error : Impossible to open the file." << endl;
+        cerr << "Error: Impossible to open the file." << endl;
         return false;
     }
-    // read all the line until EOF
+
     if (n >= 1)
     {
         for (int i = 0; i < n; ++i)
@@ -94,8 +94,6 @@ bool FileHandler::readDocument(int n, bool dashIgnore)
             ++count;
         }
     }
-    cout << count << endl;
-    cout << logHistory.size() << endl;
     return true;
 }
 
@@ -124,37 +122,61 @@ string FileHandler::extractDomain(const string url)
     if (url == "-")
         return url;
 
-    size_t start = url.find("://");
-    if (start == string::npos)
+    size_t http_adress = url.find("://");
+    if (http_adress == string::npos)
         return "-";
 
-    start += 3;
+    http_adress += 3;
 
-    size_t end = url.find('/', start);
-    if (end == string::npos)
+    size_t start = url.find('/', http_adress);
+    if (start == string::npos)
     {
-        end = url.length();
+        start = url.length();
     }
+
+    size_t end = url.length();
+
 
     string domain = url.substr(start, end - start);
-    if (domain.find("www.") == 0)
-    {
-        domain = domain.substr(4);
-    }
+    if (domain == "") domain = "/"; // je ne suis pas sure pour ca 
+    // if (domain.find("www.") == 0)
+    // {
+    //     domain = domain.substr(4);
+    // }
 
     return domain;
 }
 
+
+int FileHandler::extractHourFromDateTime(const string &date) const 
+{
+    size_t colonPos = date.find(':');
+    if (colonPos != string::npos)
+    {
+        string hourStr = date.substr(colonPos + 1, 2);
+        return stoi(hourStr); 
+    }
+    return -1;
+}
+
+
+
 Graph *FileHandler::createGraph() const
 {
-
     Graph *graph = new Graph();
     for (int i = 0; i < logHistory.size(); ++i)
     {
         string domainReferer = extractDomain(logHistory[i].referer);
-        string domainResource = extractDomain(logHistory[i].resource);
+        string domainResource = logHistory[i].resource;
 
-        graph->addVisit(domainResource, domainReferer);
+        int hour = extractHourFromDateTime(logHistory[i].dateTime);
+        if (hour == -1)
+        {
+            cerr << "Error: Invalid date format for log " << i << endl;
+            continue;
+        }
+        graph->addVisit(domainResource, domainReferer, hour);
     }
     return graph;
 }
+

@@ -52,6 +52,9 @@ public:
     friend ostream &operator<<(ostream &out, FileHandler &file);
     Graph *createGraph() const;
     static string extractDomain(const string url);
+    int extractHourFromDateTime(const string &date) const;
+
+
 
 protected:
     vector<logStruct> logHistory;
