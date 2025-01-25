@@ -16,10 +16,14 @@ using namespace std;
 
 struct PageInfo
 {
-    unordered_map<string, int> counts;
+    unordered_map<string, pair<int, vector<int>>> counts;
     int total;
 
-    PageInfo(const string origin) : counts{{origin, 1}}, total(1) {}
+    PageInfo(const string origin, const int time)
+    {
+        counts[origin] = {1, {time}};
+        total = 1;
+    }
 
     bool exists(const string &key)
     {
@@ -29,14 +33,24 @@ struct PageInfo
     }
 };
 
+
+
 class Graph
 {
 public:
-    void addVisit(const string dest, const string origin);
+    void addVisit(const string dest, const string origin, const int time);
     bool exists(const string &key) const;
     vector<string, int> getTop(int n, int h = -1, bool exclude = false) const;
-    void createFile(int h = -1, bool exclude = false) const;
+
     friend ostream &operator<<(ostream &out, Graph &graph);
+
+    //il y a moyen de rassembler les deux fonctions selon si hourFilter = -1
+    bool FilterLogTime(int hourFilter); // logs filtrés selon heure et extension
+    bool FilterLogType();  // logs filtrés selon extension
+    void displayTopDocuments(int n = 10);    // affiche les 10 pages les plus visitées 
+
+    void createDotFile(string fileName, int h = -1, bool exclude = false) const; // crée un document dot
+
 
 protected:
     unordered_map<string, PageInfo *> table;
