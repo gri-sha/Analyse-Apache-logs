@@ -1,1 +1,1 @@
-echo "yop !"
+./analog -t 14 fichier.log

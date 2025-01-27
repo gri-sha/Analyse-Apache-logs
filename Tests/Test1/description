@@ -1,1 +1,4 @@
-Ce test permet de vérifier la production d'un fichier en sortie du programme testé
+Ce test permet de vérifier la bonne exécution du programme sans spécifier d'options de compilation facultatives.
+Ainsi, si l'exécution se passe bien, le programme affiche sur la sortie standard les 10 pages les plus visitées dans le fichier d'entrée donné.
+Sachant que ce fichier d'entrée ne recense que 6 logs (< 10), il est normal de ne voir affichées que 6 pages et non 10.
+Le programme ne doit pas produire de fichier .dot, car l'option de compilation [-g nom_fichier.dot] n'est pas présente.

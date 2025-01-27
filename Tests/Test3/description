@@ -1,1 +1,4 @@
-Test du code retour du programme correct
+Ce test permet de vérifier l'option de compilation [-t heure], qui ne prend en compte que les logs entre heure et heure +1. 
+Dans le fichier.log fournit en entrée du programme, il n'y a aucun log entre 14h et 15h. 
+Il s'agit donc de vérifier que le programme ne trouve pas de log dans cette plage horaire.
+Le programme ne doit pas produire de fichier .dot, car l'option de compilation [-g nom_fichier.dot] n'est pas présente.
