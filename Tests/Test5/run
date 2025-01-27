@@ -1,1 +1,1 @@
-cat 
+./analog -e fichier.log
