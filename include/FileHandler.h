@@ -47,17 +47,19 @@ class FileHandler
 {
 public:
     FileHandler(const string &fileName) : fileName(fileName) {}
+
     bool readDocument(int n = -1, bool dashIgnore=false);
     bool readLine(ifstream &fichier, bool dashIgnore=false);
     friend ostream &operator<<(ostream &out, FileHandler &file);
-    Graph *createGraph() const;
+
     static string extractDomain(const string url);
     int extractHourFromDateTime(const string &date) const;
-
-
+    bool filterType ( string domain ) const;
+    
+    Graph *createGraph( bool excludeExtensions , bool filterTime, int hourFilter = -1) const ;
 
 protected:
-    vector<logStruct> logHistory;
+    vector<logStruct> logHistory; // inutile. On ne va pas charger 10 000 lignes à chaque fois
     string fileName;
     const string baseURL = "intranet-if.insa-lyon.fr";
 };

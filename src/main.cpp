@@ -13,11 +13,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Variables pour les options
     string logFile;
     string dotFile; 
     bool excludeExtensions = false;
-    int filterHour = -1; 
+    bool filterTime = false;
+    bool generatedDotFile = false;
+    int hourFilter = -1; 
 
 
     for (int i = 1; i < argc; ++i)
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
                 cerr << "Error: Missing filename for -g option." << endl;
                 return 1;
             }
+            generatedDotFile = true;
         }
         else if (arg == "-e") 
         {
@@ -43,12 +45,13 @@ int main(int argc, char *argv[])
         {
             if (i + 1 < argc)
             {
-                filterHour = stoi(argv[++i]); // Convertir l'heure en entier
-                if (filterHour < 0 || filterHour > 23)
+                hourFilter = stoi(argv[++i]); // Convertir l'heure en entier
+                if (hourFilter < 0 || hourFilter > 23)
                 {
                     cerr << "Error: Invalid hour. Provide an hour between 0 and 23." << endl;
                     return 1;
                 }
+                filterTime = true;
             }
             else
             {
@@ -64,28 +67,19 @@ int main(int argc, char *argv[])
 
     FileHandler *myFileHandler = new FileHandler(logFile);
     myFileHandler->readDocument();
-    Graph *graph = myFileHandler->createGraph();
+    Graph *graph = myFileHandler->createGraph( excludeExtensions , filterTime, hourFilter);
 
-
-    if (filterHour != -1)
+    if (generatedDotFile)
     {
-        graph->FilterLogTime(filterHour);
-        cout << "Warning : only hits between " << filterHour << "h and " << filterHour+1 << "h have been taken into account." << endl;
-    }
-    if (excludeExtensions)
-    {
-        graph->FilterLogType();
-    }
-
-    if (!dotFile.empty())
-    {
-        cout << "Dot-file " << dotFile << "  generated" << dotFile << endl;
+        if (dotFile.empty())
+        {
+            cerr << "Pas de nom renseigné pour le fichier dot" << endl;
+            return 1;
+        }
+        cout << "Dot-file " << dotFile << " generated " << dotFile << endl;
         graph->createDotFile(dotFile);
-        delete graph;
     }
-    
-    
-    graph->displayTopDocuments(); // les dix pages les + visitées
-
+    graph->displayTopDocuments(); 
+    delete graph;
     return 0;
 }

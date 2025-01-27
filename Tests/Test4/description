@@ -1,1 +1,14 @@
 Test mal formé, sans fichier run
+
+
+il faut au moins 
+un run 
+une description
+un fichier retour (.dot et/ou stdout)
+
+lancer le fichier ./mktest.sh pour lancer les tests automqtiquement
+marche que sous linus => environnement WSL ça marche
+
+dans run il faut mettre la commande à exécuter
+
+
