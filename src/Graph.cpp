@@ -11,119 +11,27 @@
 #include <iostream>
 #include <iomanip>
 #include <set>
+#include <fstream>
 #include <algorithm>
+#include <memory>
 using namespace std;
 
-void Graph::addVisit(const string dest, const string origin, const int time)
+void Graph::addVisit(const string &dest, const string &origin)
 {
-    if (!exists(dest)) {
-        table[dest] = new PageInfo(origin, time);
+    if (table.find(dest) == table.end()) {
+        table[dest] = unique_ptr<PageInfo>(new PageInfo(origin)); 
     } else {
         if (!table[dest]->exists(origin))
         {
-            table[dest]->counts[origin] = {0, {}};
+            table[dest]->counts[origin] = 0;
         }
-        table[dest]->counts[origin].first += 1;
-        table[dest]->counts[origin].second.push_back(time);
+        table[dest]->counts[origin] += 1;
         table[dest]->total += 1;
     }
 }
 
-bool Graph::exists(const string &key) const
-{
-    if (table.find(key) == table.end())
-    {
-        return false;
-    }
-    return true;
-}
 
-ostream& operator << (ostream &out, Graph &graph)
-{
-    for (auto it = graph.table.begin(); it != graph.table.end(); ++it)
-    {
-        out << it->first << endl;
-        out << "( " << it->second->total << " hits )" << endl;
-    }
-    return out;
-}
-
-
-bool Graph::FilterLogTime(int hour)
-{
-    for (auto it = table.begin(); it != table.end();)
-    {
-        PageInfo *pageInfo = it->second;
-
-        for (auto subIt = pageInfo->counts.begin(); subIt != pageInfo->counts.end();)
-        {
-            vector<int> &times = subIt->second.second; 
-
-            auto newEnd = remove_if(times.begin(), times.end(), [hour](int time) {return time != hour; });
-            int removedCount = distance(newEnd, times.end());
-            times.erase(newEnd, times.end());
-
-            auto &count = subIt->second.first;    
-            count -= removedCount;
-
-            // Si aucune heure ne reste pour cette origine, supprimer l'entrée
-            if (times.empty())
-            {
-                subIt = pageInfo->counts.erase(subIt);
-            }
-            else
-            {
-                ++subIt;
-            }
-        }
-
-        // Mettre à jour le total pour la page
-        pageInfo->total = 0;
-        for (const auto &entry : pageInfo->counts)
-        {
-            pageInfo->total += entry.second.first;
-        }
-
-        // Si aucune origine ne reste pour cette URL cible, supprimer l'entrée
-        if (pageInfo->counts.empty())
-        {
-            delete pageInfo; // Libérer la mémoire
-            it = table.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-    return true;
-}
-
-bool Graph::FilterLogType()
-{
-    for (auto it = table.begin(); it != table.end();)
-    {
-        string pageName = it->first;
-        // Vérifier si le nom de la page contient une extension d'image, CSS ou JS
-        if (pageName.find(".pgn") != std::string::npos ||
-            pageName.find(".jpg") != std::string::npos ||
-            pageName.find(".jpeg") != std::string::npos ||
-            pageName.find(".css") != std::string::npos ||
-            pageName.find(".js") != std::string::npos ||
-            pageName.find(".heic") != std::string::npos)
-        {
-            // Supprimer la page si une extension correspond
-            it = table.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-    return true;
-}
-
-
-void Graph::displayTopDocuments(int n) 
+void Graph::displayTopDocuments(int n) const
 {
     // Vector pour stocker les paires (URL, total)
     vector<pair<string, int>> logTotals;
@@ -138,12 +46,41 @@ void Graph::displayTopDocuments(int n)
              return a.second > b.second; 
          });
 
-    for (int i = 0; i < n && i < logTotals.size(); ++i)
+    for (int i = 0; i < n && i < (static_cast<int>(logTotals.size())); ++i)
     {
-        cout << logTotals[i].first << " ( " << logTotals[i].second << " hits )" << endl;
+        cout << logTotals[i].first << " (" << logTotals[i].second << " hits)" << endl;
     }
 }
 
+void Graph::createDotFile(const string &fileName) const
+{
+    ofstream fichier(fileName);
 
+    if (fichier.is_open())
+    {
+        fichier << "digraph  {" << endl;
 
-void Graph::createDotFile(string fileName, int h, bool exclude) const {} // crée un document dot
+        for (const auto &entry : table)
+        {
+            fichier << "  \"" << entry.first << "\";" << endl;
+        }
+
+        for (const auto &entry : table) {
+            const string &arrivalNode = entry.first;
+
+            for (const auto &subEntry : entry.second->counts) {
+                const string &startNode = subEntry.first;
+
+                fichier << "  \"" << startNode << "\" -> \"" << arrivalNode
+                        << "\" [label=\"" << subEntry.second << "\"];" << endl;
+            }
+        }
+        
+        fichier << "}" << endl;
+    }
+    else 
+    {
+        cerr << "Error : Unable to open the file " << fileName << endl;
+    }
+
+} // crée un document dot

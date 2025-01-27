@@ -159,9 +159,23 @@ int FileHandler::extractHourFromDateTime(const string &date) const
     return -1;
 }
 
+bool FileHandler::filterType ( string domain ) const
+{
+    if (domain.find(".pgn") != string::npos ||
+        domain.find(".jpg") != string::npos ||
+        domain.find(".jpeg") != string::npos ||
+        domain.find(".css") != string::npos ||
+        domain.find(".js") != string::npos ||
+        domain.find(".heic") != string::npos)
+    { return true; }
+    return false;
+}
 
 
-Graph *FileHandler::createGraph() const
+Graph *FileHandler::createGraph( bool excludeExtensions , bool filterTime, int hourFilter) const 
+// ne pas stocker si heure pas correcte !!!!!!!!!!!!!!!
+// donc ne pas faire un vectuer de int pour l'heure 
+// autant selectionner au plus juste
 {
     Graph *graph = new Graph();
     for (int i = 0; i < logHistory.size(); ++i)
@@ -169,14 +183,24 @@ Graph *FileHandler::createGraph() const
         string domainReferer = extractDomain(logHistory[i].referer);
         string domainResource = logHistory[i].resource;
 
-        int hour = extractHourFromDateTime(logHistory[i].dateTime);
-        if (hour == -1)
+        if (excludeExtensions) 
         {
-            cerr << "Error: Invalid date format for log " << i << endl;
-            continue;
+            if (filterType ( domainResource ))
+            {
+                continue; // on veut ignorer cette entrée
+            }
         }
-        graph->addVisit(domainResource, domainReferer, hour);
+        
+        if (filterTime) 
+        {
+            int hourLog = extractHourFromDateTime(logHistory[i].dateTime);
+            if (hourLog != hourFilter)
+            {
+                continue; // on veut ignorer cette entrée
+            }
+        }
+        graph->addVisit(domainResource, domainReferer);
     }
     return graph;
-}
+} 
 
