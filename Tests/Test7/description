@@ -1,1 +1,2 @@
-Essai de test de recopie d'un fichier sur l'erreur standard
+Test de gestion d'erreur : 
+Option de compilation -g incomplète, car sans nom de fichier de sortie derrière

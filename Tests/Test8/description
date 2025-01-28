@@ -1,1 +1,2 @@
-Essai de test de recopie d'un fichier sur l'erreur standard
+Test de gestion d'erreur : 
+Option de compilation -t incomplète, l'heure de filtrage est manquante
