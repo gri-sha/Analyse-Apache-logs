@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     for (int i = 1; i < argc; ++i)
     {
         string arg = argv[i];
-        if (arg == "-g") 
+        if (arg == "-g")
         {
             if (i + 1 < argc)
             {

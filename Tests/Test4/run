@@ -1,1 +1,1 @@
-./analog -g court.dot fichier.log
+../../analog -g court.dot fichier.log
