@@ -17,7 +17,7 @@ using namespace std;
 
 FileHandler::~FileHandler() {}
 
-bool FileHandler::readLine(ifstream &fichier, bool dashIgnore, logStruct* l)
+bool FileHandler::readLine(ifstream &fichier, bool dashIgnore, logStruct *l)
 {
     logStruct log;
     string useless;
@@ -60,15 +60,14 @@ bool FileHandler::readLine(ifstream &fichier, bool dashIgnore, logStruct* l)
 #endif
         return false;
     }
-    *l=log;
+    *l = log;
     return true;
 }
 
-Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int hourFilter, int n, bool dashIgnore)
+Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int hourFilter, int n, bool dashIgnore)
 {
     Graph *graph = new Graph();
-   
-    
+
     int count = 0;
     ifstream fichier(fileName, ios::in);
     if (!fichier.is_open())
@@ -76,29 +75,33 @@ Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int h
         cerr << "Error: Impossible to open the file." << endl;
         return graph;
     }
-    
-    logStruct* log=new logStruct;
+
+    logStruct *log = new logStruct;
     if (n >= 1)
     {
         for (int i = 0; i < n; ++i)
         {
             readLine(fichier, dashIgnore, log);
-        	string domainReferer = extractDomain(log->referer);
-        	string domainResource = log->resource;
-        	if (excludeExtensions){
-            		if (filterType(domainResource)){
-                		continue;
-            		}
-        	}
-        	if (filterTime){
-            		int hourLog = extractHourFromDateTime(log->dateTime);
-            		if (hourLog != hourFilter){
-                		continue; // on veut ignorer cette entrée
-            		}
-        	}
-        	graph->addVisit(domainResource, domainReferer);
-   	 } 
-   	 return graph;
+            string domainReferer = extractDomain(log->referer);
+            string domainResource =  extractDomain(log->resource);
+            if (excludeExtensions)
+            {
+                if (filterType(domainResource))
+                {
+                    continue;
+                }
+            }
+            if (filterTime)
+            {
+                int hourLog = extractHourFromDateTime(log->dateTime);
+                if (hourLog != hourFilter)
+                {
+                    continue;
+                }
+            }
+            graph->addVisit(domainResource, domainReferer);
+        }
+        return graph;
     }
     else
     {
@@ -112,20 +115,24 @@ Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int h
                 continue;
             }
             string domainReferer = extractDomain(log->referer);
-        	string domainResource = log->resource;
-        	if (excludeExtensions){
-            		if (filterType(domainResource)){
-                		continue;
-            		}
-        	}
-        	if (filterTime){
-            		int hourLog = extractHourFromDateTime(log->dateTime);
-            		if (hourLog != hourFilter){
-                		continue; // on veut ignorer cette entrée
-            		}
-        	}
-        	graph->addVisit(domainResource, domainReferer);
-            	++count;
+            string domainResource = log->resource;
+            if (excludeExtensions)
+            {
+                if (filterType(domainResource))
+                {
+                    continue;
+                }
+            }
+            if (filterTime)
+            {
+                int hourLog = extractHourFromDateTime(log->dateTime);
+                if (hourLog != hourFilter)
+                {
+                    continue;
+                }
+            }
+            graph->addVisit(domainResource, domainReferer);
+            ++count;
         }
     }
     delete log;
@@ -134,34 +141,88 @@ Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int h
 
 string FileHandler::extractDomain(const string url)
 {
-    if (url == "-")
-        return url;
+    bool external_link = true;
 
-    size_t http_adress = url.find("://");
-    if (http_adress == string::npos)
-        return "-";
-
-
-
-    http_adress += 3;
-
-    size_t start = url.find('/', http_adress);
-    if (start == string::npos)
+    // find the protocol and read after it
+    size_t startPos = url.find("://");
+    if (startPos != string::npos)
     {
-        start = url.length();
+        startPos += 3;
+    }
+     // if there is no protocol, read from the start
+    else
+    {
+        startPos = 0;
+        external_link = false;
     }
 
-    size_t end = url.length();
+    // extract the domain
+    size_t endPos = url.find('/', startPos);
+    if (endPos == string::npos)
+    {
+        endPos = url.length();
+    }
+    string domain = url.substr(startPos, endPos - startPos);
 
-    string domain = url.substr(start, end - start);
-    if (domain == "")
-        domain = "/";
-    // if (domain.find("www.") == 0)
-    // {
-    //     domain = domain.substr(4);
-    // }
+    // remove the www. from the domain if it exists
+    if (domain.find("www.") == 0)
+        domain = domain.substr(4);
 
-    return domain;
+    if (domain == "intranet-if.insa-lyon.fr")
+        external_link = false;
+
+
+    // return the dmain of external_link
+    if (external_link)
+    {
+        // cout << "external : ";
+        return domain;
+    }
+
+    /* FUTHER TREATMENT FOR INTERNAL LINKS */
+
+    // extract the path
+    string path = url.substr(endPos);
+
+    // remove query from the path
+    size_t queryPos = path.find('?');
+    if (queryPos != string::npos)
+    {
+        path = path.substr(0, queryPos);
+    }
+
+    // remove the url identifier
+    size_t urlPos = path.find("url");
+    if (queryPos != string::npos)
+    {
+        path = path.substr(0, urlPos);
+    }
+
+    // remove session data from the path
+    size_t sessionPos = path.find(';');
+    if (sessionPos != string::npos)
+    {
+        path = path.substr(0, sessionPos);
+    }
+
+    string res;
+    if (domain.find("intranet-if.insa-lyon.fr") == string::npos)
+    {
+        res = domain + path;
+    }
+    else
+    {
+        external_link = false;
+        res = path;
+    }
+
+    if (external_link and res[res.size() - 1] == '/')
+        res = res.substr(0, res.size() - 1);
+
+    if (res[0] != '/' and !external_link)
+        res = "/" + res;
+
+    return res;
 }
 
 int FileHandler::extractHourFromDateTime(const string &date) const
@@ -188,4 +249,3 @@ bool FileHandler::filterType(string domain) const
     }
     return false;
 }
-    
