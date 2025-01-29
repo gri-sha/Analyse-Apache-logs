@@ -17,7 +17,7 @@ using namespace std;
 
 FileHandler::~FileHandler() {}
 
-bool FileHandler::readLine(ifstream &fichier, bool dashIgnore)
+bool FileHandler::readLine(ifstream &fichier, bool dashIgnore, logStruct* l)
 {
     logStruct log;
     string useless;
@@ -60,63 +60,76 @@ bool FileHandler::readLine(ifstream &fichier, bool dashIgnore)
 #endif
         return false;
     }
-
-    logHistory.push_back(log);
+    *l=log;
     return true;
 }
 
-bool FileHandler::readDocument(int n, bool dashIgnore)
+Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int hourFilter, int n, bool dashIgnore)
 {
+    Graph *graph = new Graph();
+   
+    
     int count = 0;
     ifstream fichier(fileName, ios::in);
     if (!fichier.is_open())
     {
         cerr << "Error: Impossible to open the file." << endl;
-        return false;
+        return graph;
     }
-
+    
+    logStruct* log=new logStruct;
     if (n >= 1)
     {
         for (int i = 0; i < n; ++i)
         {
-            readLine(fichier, dashIgnore);
-        }
+            readLine(fichier, dashIgnore, log);
+        	string domainReferer = extractDomain(log->referer);
+        	string domainResource = log->resource;
+        	if (excludeExtensions){
+            		if (filterType(domainResource)){
+                		continue;
+            		}
+        	}
+        	if (filterTime){
+            		int hourLog = extractHourFromDateTime(log->dateTime);
+            		if (hourLog != hourFilter){
+                		continue; // on veut ignorer cette entrée
+            		}
+        	}
+        	graph->addVisit(domainResource, domainReferer);
+   	 } 
+   	 return graph;
     }
     else
     {
         while (fichier)
         {
-            if (!readLine(fichier, dashIgnore))
+            if (!readLine(fichier, dashIgnore, log))
             {
 #ifdef SETTING
                 cout << "Line skipped." << endl;
 #endif
                 continue;
             }
-            ++count;
+            string domainReferer = extractDomain(log->referer);
+        	string domainResource = log->resource;
+        	if (excludeExtensions){
+            		if (filterType(domainResource)){
+                		continue;
+            		}
+        	}
+        	if (filterTime){
+            		int hourLog = extractHourFromDateTime(log->dateTime);
+            		if (hourLog != hourFilter){
+                		continue; // on veut ignorer cette entrée
+            		}
+        	}
+        	graph->addVisit(domainResource, domainReferer);
+            	++count;
         }
     }
-    return true;
-}
-
-ostream &operator<<(ostream &out, FileHandler &handler)
-{
-    for (int i = 0; i < handler.logHistory.size(); ++i)
-    {
-        cout << "log " << i + 1 << " : " << endl;
-        cout << "\tIP Address: " << handler.logHistory[i].ipAddress << endl;
-        cout << "\tIdentity: " << handler.logHistory[i].identity << endl;
-        cout << "\tUser: " << handler.logHistory[i].user << endl;
-        cout << "\tDate Time: " << handler.logHistory[i].dateTime << endl;
-        cout << "\tHTTP Method: " << handler.logHistory[i].httpMethod << endl;
-        cout << "\tResource: " << handler.logHistory[i].resource << endl;
-        cout << "\tHTTP Version: " << handler.logHistory[i].httpVersion << endl;
-        cout << "\tHTTP Status Code: " << handler.logHistory[i].httpStatusCode << endl;
-        cout << "\tResponse Size: " << handler.logHistory[i].responseSize << endl;
-        cout << "\tReferer: " << handler.logHistory[i].referer << endl;
-        cout << "\tUser Agent: " << handler.logHistory[i].userAgent << endl;
-    }
-    return out;
+    delete log;
+    return graph;
 }
 
 string FileHandler::extractDomain(const string url)
@@ -127,6 +140,8 @@ string FileHandler::extractDomain(const string url)
     size_t http_adress = url.find("://");
     if (http_adress == string::npos)
         return "-";
+
+
 
     http_adress += 3;
 
@@ -173,32 +188,4 @@ bool FileHandler::filterType(string domain) const
     }
     return false;
 }
-
-Graph *FileHandler::createGraph(bool excludeExtensions, bool filterTime, int hourFilter) const
-{
-    Graph *graph = new Graph();
-    for (int i = 0; i < logHistory.size(); ++i)
-    {
-        string domainReferer = extractDomain(logHistory[i].referer);
-        string domainResource = logHistory[i].resource;
-
-        if (excludeExtensions)
-        {
-            if (filterType(domainResource))
-            {
-                continue;
-            }
-        }
-
-        if (filterTime)
-        {
-            int hourLog = extractHourFromDateTime(logHistory[i].dateTime);
-            if (hourLog != hourFilter)
-            {
-                continue; // on veut ignorer cette entrée
-            }
-        }
-        graph->addVisit(domainResource, domainReferer);
-    }
-    return graph;
-}
+    

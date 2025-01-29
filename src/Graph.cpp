@@ -14,7 +14,11 @@
 #include <algorithm>
 using namespace std;
 
-Graph::~Graph() {};
+Graph::~Graph() {
+	for (std::unordered_map<string, PageInfo *>::const_iterator it = table.begin(); it != table.end() ; ++it)
+        	delete table[it->first];
+};
+
 
 void Graph::addVisit(const string &dest, const string &origin)
 {
@@ -99,3 +103,4 @@ void Graph::createDotFile(const string &fileName) const
         cerr << "Error: Unable to open the file " << fileName << endl;
     }
 } 
+
