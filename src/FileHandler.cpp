@@ -6,7 +6,10 @@
 
 //---------- Réalisation de la classe <FileHandler> (fichier FileHandler.cpp) ------------
 
+//---------- include personnels
 #include "../include/FileHandler.h"
+
+//---------- include système
 #include <string>
 #include <vector>
 #include <fstream>
@@ -15,8 +18,13 @@
 #include <sstream>
 using namespace std;
 
+//---------- déclaration du destructeur
 FileHandler::~FileHandler() {}
 
+/* La fonction readLine permettant de lire une ligne du document.
+Renvoie True si la ligne est lue correctement, false sinon.
+A comme effet de bord de stocker la ligne dans le pointeur donné en entrée.
+*/
 bool FileHandler::readLine(ifstream &fichier, bool dashIgnore, logStruct* l)
 {
     logStruct log;
@@ -64,6 +72,16 @@ bool FileHandler::readLine(ifstream &fichier, bool dashIgnore, logStruct* l)
     return true;
 }
 
+/* La fonction readDocument permet de lire le document.
+données d'entrée :
+- excludeExtension désigne le fait d'exclure des extensions ou non, selon ce qu'a spécifié l'utilisateur.
+- filterTime est un bool spécifiant si l'utilisatuer désire se concentrer sur une certaine plage horaire.
+- hourFilter est un int positif repérant le début de la plage horaire, si il y en a une, et valant -1 sinon.
+- n est un ajout optionnel, dans le cas où l'utilisateur ne voudrait traiter qu'un nombre spécifié de lignes.
+- dashIgnore est un ajout optionnel, dans le cas où l'utilisateur ne voudrait pas traiter les logs contenant un dash.
+
+Renvoie un graphe contenant les logs et les informations qui nous intéressent, selon les spécifications d'entrées.
+*/
 Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int hourFilter, int n, bool dashIgnore)
 {
     Graph *graph = new Graph();
@@ -78,7 +96,7 @@ Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int h
     }
     
     logStruct* log=new logStruct;
-    if (n >= 1)
+    if (n >= 1) //Si l'utilisateur spécifie un nombre de lignes
     {
         for (int i = 0; i < n; ++i)
         {
@@ -87,20 +105,20 @@ Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int h
         	string domainResource = log->resource;
         	if (excludeExtensions){
             		if (filterType(domainResource)){
-                		continue;
+                		continue; // on ne veut pas ajouter cette entrée au graphe
             		}
         	}
         	if (filterTime){
             		int hourLog = extractHourFromDateTime(log->dateTime);
             		if (hourLog != hourFilter){
-                		continue; // on veut ignorer cette entrée
+                		continue; // on ne veut pas ajouter cette entrée au graphe
             		}
         	}
-        	graph->addVisit(domainResource, domainReferer);
+        	graph->addVisit(domainResource, domainReferer); //si le log correspond à tous les critères spécifiés par l'utilisateur, on l'ajoute au graphe.
    	 } 
    	 return graph;
     }
-    else
+    else //dans le cas où l'utilisateur ne spécifie pas de nombre fini de lignes -> les traite toutes.
     {
         while (fichier)
         {
@@ -115,23 +133,30 @@ Graph * FileHandler::readDocument(bool excludeExtensions, bool filterTime, int h
         	string domainResource = log->resource;
         	if (excludeExtensions){
             		if (filterType(domainResource)){
-                		continue;
+                		continue; // on ne veut pas ajouter cette entrée au graphe
             		}
         	}
         	if (filterTime){
             		int hourLog = extractHourFromDateTime(log->dateTime);
             		if (hourLog != hourFilter){
-                		continue; // on veut ignorer cette entrée
+                		continue; // on ne veut pas ajouter cette entrée au graphe
             		}
         	}
-        	graph->addVisit(domainResource, domainReferer);
-            	++count;
+        	graph->addVisit(domainResource, domainReferer); //si le log correspond à tous les critères spécifiés par l'utilisateur, on l'ajoute au graphe.
+            ++count;
         }
     }
-    delete log;
+    delete log; 
     return graph;
 }
 
+/* La fonction extractDomain.
+données d'entrée :
+- l'URL d'un site
+
+sortie :
+Simplifie l'URL donnée en entrée
+*/
 string FileHandler::extractDomain(const string url)
 {
     if (url == "-")
@@ -164,6 +189,13 @@ string FileHandler::extractDomain(const string url)
     return domain;
 }
 
+/* La fonction extractHourFromDateTime.
+données d'entrée :
+- la date associée à un log
+
+sortie :
+l'heure à laquelle l'utilisateur a consulté cette page
+*/
 int FileHandler::extractHourFromDateTime(const string &date) const
 {
     size_t colonPos = date.find(':');
@@ -175,6 +207,13 @@ int FileHandler::extractHourFromDateTime(const string &date) const
     return -1;
 }
 
+/* La fonction filterType.
+données d'entrée :
+- le domaine sur lequel on réalise un filtrage
+
+sortie :
+booléen : false si le type est filtré
+*/
 bool FileHandler::filterType(string domain) const
 {
     if (domain.find(".pgn") != string::npos ||
