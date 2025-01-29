@@ -74,8 +74,7 @@ int main(int argc, char *argv[])
     }
 
     FileHandler *myFileHandler = new FileHandler(logFile);
-    myFileHandler->readDocument();
-    Graph *graph = myFileHandler->createGraph( excludeExtensions , filterTime, hourFilter);
+    Graph *graph = myFileHandler->readDocument(excludeExtensions , filterTime, hourFilter);
 
     if (generateDotFile)
     {
@@ -89,5 +88,6 @@ int main(int argc, char *argv[])
     }
     graph->displayTopDocuments(); 
     delete graph;
+    delete myFileHandler;
     return 0;
 }
