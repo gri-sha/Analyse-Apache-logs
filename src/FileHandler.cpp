@@ -53,7 +53,7 @@ bool FileHandler::readLine(ifstream &fichier, bool dashIgnore, logStruct *l)
     if (!getline(fichier, useless, '"') ||
         !getline(fichier, log.referer, '"') ||
         !getline(fichier, useless, '"') ||
-        !getline(fichier, log.userAgent, '"')) //||
+        !getline(fichier, log.userAgent, '"'))
         return false;
 
     if (fichier.peek() == '\n')
@@ -95,7 +95,8 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
     }
 
     logStruct *log = new logStruct;
-    if (n >= 1) // Si l'utilisateur spécifie un nombre de lignes
+    // Si l'utilisateur spécifie un nombre de lignes
+    if (n >= 1)
     {
         for (int i = 0; i < n; ++i)
         {
@@ -106,7 +107,7 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
             {
                 if (filterType(domainResource))
                 {
-                    continue; // on ne veut pas ajouter cette entrée au graphe
+                    continue;
                 }
             }
             if (filterTime)
@@ -114,14 +115,16 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
                 int hourLog = extractHourFromDateTime(log->dateTime);
                 if (hourLog != hourFilter)
                 {
-                    continue; // on ne veut pas ajouter cette entrée au graphe
+                    continue;
                 }
             }
-            graph->addVisit(domainResource, domainReferer); // si le log correspond à tous les critères spécifiés par l'utilisateur, on l'ajoute au graphe.
+            // si le log correspond à tous les critères spécifiés par l'utilisateur, on l'ajoute au graphe.
+            graph->addVisit(domainResource, domainReferer);
         }
         return graph;
     }
-    else // dans le cas où l'utilisateur ne spécifie pas de nombre fini de lignes -> les traite toutes.
+    // dans le cas où l'utilisateur ne spécifie pas de nombre fini de lignes -> les traite toutes.
+    else
     {
         while (fichier)
         {
@@ -138,7 +141,7 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
             {
                 if (filterType(domainResource))
                 {
-                    continue; // on ne veut pas ajouter cette entrée au graphe
+                    continue;
                 }
             }
             if (filterTime)
@@ -146,10 +149,11 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
                 int hourLog = extractHourFromDateTime(log->dateTime);
                 if (hourLog != hourFilter)
                 {
-                    continue; // on ne veut pas ajouter cette entrée au graphe
+                    continue;
                 }
             }
-            graph->addVisit(domainResource, domainReferer); // si le log correspond à tous les critères spécifiés par l'utilisateur, on l'ajoute au graphe.
+            // si le log correspond à tous les critères spécifiés par l'utilisateur, on l'ajoute au graphe.
+            graph->addVisit(domainResource, domainReferer);
             ++count;
         }
     }
@@ -176,8 +180,8 @@ string FileHandler::extractDomain(const string url)
     if (startPos != string::npos)
     {
         startPos += 3;
-        // if there is no protocol, read from the start
     }
+    // if there is no protocol, read from the start
     else
     {
         startPos = 0;
@@ -194,21 +198,14 @@ string FileHandler::extractDomain(const string url)
 
     // remove the www. from the domain if it exists
     if (domain.find("www.") == 0)
-    {
         domain = domain.substr(4);
-    }
 
     if (domain == "intranet-if.insa-lyon.fr")
-    {
         external_link = false;
-    }
 
     // return the dmain of external_link
     if (external_link)
-    {
-        cout << "external : ";
         return domain;
-    }
 
     /* FUTHER TREATMENT FOR INTERNAL LINKS */
 
