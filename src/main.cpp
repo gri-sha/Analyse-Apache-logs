@@ -19,28 +19,36 @@ int main(int argc, char *argv[])
     const regex urlPattern(R"(^((https?|ftp)://)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,6})(:[0-9]{1,5})?(\/.*)?$)"); 
 
 
-    if (argc == 0)
+    if (argc == 1)
     {
         cerr << "Error : log file missing" << endl;
         return 1;
     }
 
-    // dans tous les cas : si pas de fichier .log alors erreur 
-    for (int i = 0; i < argc; ++i)
-    {
-        logFile = argv[i];
-        while (logFile.size() < 4 || logFile.rfind(".log") != logFile.size() - 4)
-            ++i;
 
-        if (i+1==argc)
+    bool logFileFound = false;
+
+    for (int i = 1; i < argc; ++i)  
+    {
+        string arg = argv[i];
+
+        if (arg.size() >= 4 && arg.rfind(".log") == arg.size() - 4)
         {
-            cerr << "Error : log file missing";
-            return 1;
+            logFile = arg;
+            logFileFound = true;
+            break;  
         }
     }
 
+    if (!logFileFound)
+    {
+        std::cerr << "Error: log file missing" << std::endl;
+        return 1;
+    }
+
+
     // 2 ou plus arguments => trouver lequel est le fichier .log
-    for (int i = 0; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
         
         if (string(argv[i]) == "-g")
@@ -57,7 +65,7 @@ int main(int argc, char *argv[])
 
         else if (string(argv[i]) == "-t")
         {
-            if (i+1 < argc && isdigit(stoi(argv[1+1])) && stoi(argv[i+1]) > 0 && stoi(argv[i+1]) < 24)
+            if (i+1 < argc && isdigit(stoi(argv[i+1])) && stoi(argv[i+1]) > 0 && stoi(argv[i+1]) < 24)
             {
                 hourFilter = stoi(argv[i+1]) ; 
                 filterTime = true;
@@ -79,7 +87,7 @@ int main(int argc, char *argv[])
 
         else if (string(argv[i]) == "-s")
         {
-            if (i+1 < argc && regex_match(argv[i], urlPattern))
+            if (i+1 < argc && regex_match(argv[i+1], urlPattern))
             {
                 baseURL = string(argv[i+1]) ; 
             }
@@ -101,11 +109,16 @@ int main(int argc, char *argv[])
             excludeExtensions = true;
         }
         
-        else 
-        {
-            cerr << "There is an unknown parameter in the compilation command line" << endl;
-            return 1;
-        }
+        // else if (string(argv[i]).rfind(".log") == string(argv[i]).size() - 4)
+        // {
+        //     // Ne rien faire : on a déjà traité le fichier log
+        // }
+        // else
+        // {
+        //     cerr << "Error: Unknown parameter '" << argv[i] << "' in the command line" << std::endl;
+        //     return 1;
+        // }   
+
     }
 
     FileHandler *myFileHandler = new FileHandler(logFile, baseURL);
