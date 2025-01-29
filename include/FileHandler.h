@@ -33,7 +33,7 @@ struct logStruct
 class FileHandler
 {
 public:
-    FileHandler(const string &fileName) : fileName(fileName) {}
+    FileHandler(const string &fileName, const string &baseURL) : fileName(fileName), baseURL(baseURL) {}
     virtual ~FileHandler();
 
     Graph* readDocument(bool excludeExtensions=false, bool filterTime=false, int hourFilter = -1, int n = -1, bool dashIgnore = false);
