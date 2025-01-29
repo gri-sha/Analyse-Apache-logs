@@ -9,18 +9,21 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
-#include <iomanip>
 #include <set>
 #include <fstream>
 #include <algorithm>
-#include <memory>
 using namespace std;
+
+Graph::~Graph() {};
 
 void Graph::addVisit(const string &dest, const string &origin)
 {
-    if (table.find(dest) == table.end()) {
-        table[dest] = unique_ptr<PageInfo>(new PageInfo(origin)); 
-    } else {
+    if (table.find(dest) == table.end())
+    {
+        table[dest] = new PageInfo(origin);
+    }
+    else
+    {
         if (!table[dest]->exists(origin))
         {
             table[dest]->counts[origin] = 0;
@@ -30,6 +33,21 @@ void Graph::addVisit(const string &dest, const string &origin)
     }
 }
 
+ostream& operator << (ostream &out, Graph &graph)
+{
+    for (auto it = graph.table.begin(); it != graph.table.end(); ++it)
+    {
+        out << it->first << endl;
+        for (auto subIt = it->second->counts.begin(); subIt != it->second->counts.end(); ++subIt)
+        {
+            out << "├── "  << subIt->first << " : " << subIt->second << std::endl;
+        }
+        out << "│" << endl;
+        out << "└── Total: " << it->second->total << endl;
+        out << endl;
+    }
+    return out;
+}
 
 void Graph::displayTopDocuments(int n) const
 {
@@ -41,10 +59,10 @@ void Graph::displayTopDocuments(int n) const
         logTotals.push_back({it->first, it->second->total});
     }
 
-    sort(logTotals.begin(), logTotals.end(),
-         [](const pair<string, int> &a, const pair<string, int> &b) {
-             return a.second > b.second; 
-         });
+    sort(logTotals.begin(),
+         logTotals.end(),
+         // lambda function for comparison of pairs
+         [](const pair<string, int> &a, const pair<string, int> &b) { return a.second > b.second; });
 
     for (int i = 0; i < n && i < (static_cast<int>(logTotals.size())); ++i)
     {
@@ -54,33 +72,30 @@ void Graph::displayTopDocuments(int n) const
 
 void Graph::createDotFile(const string &fileName) const
 {
-    ofstream fichier(fileName);
+    ofstream file(fileName);
 
-    if (fichier.is_open())
+    if (file.is_open())
     {
-        fichier << "digraph  {" << endl;
-
+        file << "digraph  {" << endl;
         for (const auto &entry : table)
         {
-            fichier << "  \"" << entry.first << "\";" << endl;
+            file << "  \"" << entry.first << "\";" << endl;
         }
-
-        for (const auto &entry : table) {
+        for (const auto &entry : table)
+        {
             const string &arrivalNode = entry.first;
 
-            for (const auto &subEntry : entry.second->counts) {
+            for (const auto &subEntry : entry.second->counts)
+            {
                 const string &startNode = subEntry.first;
 
-                fichier << "  \"" << startNode << "\" -> \"" << arrivalNode
-                        << "\" [label=\"" << subEntry.second << "\"];" << endl;
+                file << "  \"" << startNode << "\" -> \"" << arrivalNode << "\" [label=\"" << subEntry.second << "\"];" << endl;
             }
         }
-        
-        fichier << "}" << endl;
+        file << "}" << endl;
     }
-    else 
+    else
     {
-        cerr << "Error : Unable to open the file " << fileName << endl;
+        cerr << "Error: Unable to open the file " << fileName << endl;
     }
-
-} // crée un document dot
+} 

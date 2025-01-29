@@ -9,13 +9,9 @@
 #define GRAPH_H
 
 #include <unordered_map>
-#include <memory>
 #include <set>
 #include <string>
 #include <vector>
-#include <functional>
-#include <utility>
-#include <ostream>
 using namespace std;
 
 struct PageInfo
@@ -23,8 +19,7 @@ struct PageInfo
     unordered_map<string, int> counts;
     int total;
 
-    PageInfo(const std::string &origin)
-        : counts{{origin, 1}}, total(1) {}
+    PageInfo(const std::string &origin): counts{{origin, 1}}, total(1) {}
 
     bool exists(const string &key) const
     {
@@ -36,12 +31,14 @@ class Graph
 {
 public:
     void addVisit(const string &dest, const string &origin);
-    void displayTopDocuments(int n = 10) const ;    // affiche les 10 pages les plus visitées 
+    void displayTopDocuments(int n = 10) const;
     void createDotFile(const string &fileName) const;
+    friend ostream &operator<<(ostream &out, Graph &graph);
+
+    virtual ~Graph();
 
 protected:
-    unordered_map<string, unique_ptr<PageInfo>> table;
-
+    unordered_map<string, PageInfo *> table;
 };
 
 #endif
