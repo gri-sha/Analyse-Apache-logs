@@ -1,7 +1,0 @@
-digraph  {
-  "/page3.html";
-  "/page2.html";
-  "/page2.html" -> "/page3.html" [label="1"];
-  "/page1.html" -> "/page2.html" [label="1"];
-  "/page3.html" -> "/page2.html" [label="1"];
-}

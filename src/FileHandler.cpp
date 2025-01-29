@@ -15,6 +15,8 @@
 #include <sstream>
 using namespace std;
 
+FileHandler::~FileHandler() {}
+
 bool FileHandler::readLine(ifstream &fichier, bool dashIgnore)
 {
     logStruct log;
@@ -43,10 +45,10 @@ bool FileHandler::readLine(ifstream &fichier, bool dashIgnore)
     if (!getline(fichier, useless, '"') ||
         !getline(fichier, log.referer, '"') ||
         !getline(fichier, useless, '"') ||
-        !getline(fichier, log.userAgent, '"') ) //||
+        !getline(fichier, log.userAgent, '"')) //||
         return false;
 
-    if (fichier.peek()== '\n') 
+    if (fichier.peek() == '\n')
     {
         fichier.get();
     }
@@ -136,9 +138,9 @@ string FileHandler::extractDomain(const string url)
 
     size_t end = url.length();
 
-
     string domain = url.substr(start, end - start);
-    if (domain == "") domain = "/"; // je ne suis pas sure pour ca 
+    if (domain == "")
+        domain = "/";
     // if (domain.find("www.") == 0)
     // {
     //     domain = domain.substr(4);
@@ -147,19 +149,18 @@ string FileHandler::extractDomain(const string url)
     return domain;
 }
 
-
-int FileHandler::extractHourFromDateTime(const string &date) const 
+int FileHandler::extractHourFromDateTime(const string &date) const
 {
     size_t colonPos = date.find(':');
     if (colonPos != string::npos)
     {
         string hourStr = date.substr(colonPos + 1, 2);
-        return stoi(hourStr); 
+        return stoi(hourStr);
     }
     return -1;
 }
 
-bool FileHandler::filterType ( string domain ) const
+bool FileHandler::filterType(string domain) const
 {
     if (domain.find(".pgn") != string::npos ||
         domain.find(".jpg") != string::npos ||
@@ -167,15 +168,13 @@ bool FileHandler::filterType ( string domain ) const
         domain.find(".css") != string::npos ||
         domain.find(".js") != string::npos ||
         domain.find(".heic") != string::npos)
-    { return true; }
+    {
+        return true;
+    }
     return false;
 }
 
-
-Graph *FileHandler::createGraph( bool excludeExtensions , bool filterTime, int hourFilter) const 
-// ne pas stocker si heure pas correcte !!!!!!!!!!!!!!!
-// donc ne pas faire un vectuer de int pour l'heure 
-// autant selectionner au plus juste
+Graph *FileHandler::createGraph(bool excludeExtensions, bool filterTime, int hourFilter) const
 {
     Graph *graph = new Graph();
     for (int i = 0; i < logHistory.size(); ++i)
@@ -183,15 +182,15 @@ Graph *FileHandler::createGraph( bool excludeExtensions , bool filterTime, int h
         string domainReferer = extractDomain(logHistory[i].referer);
         string domainResource = logHistory[i].resource;
 
-        if (excludeExtensions) 
+        if (excludeExtensions)
         {
-            if (filterType ( domainResource ))
+            if (filterType(domainResource))
             {
-                continue; // on veut ignorer cette entrée
+                continue;
             }
         }
-        
-        if (filterTime) 
+
+        if (filterTime)
         {
             int hourLog = extractHourFromDateTime(logHistory[i].dateTime);
             if (hourLog != hourFilter)
@@ -202,5 +201,4 @@ Graph *FileHandler::createGraph( bool excludeExtensions , bool filterTime, int h
         graph->addVisit(domainResource, domainReferer);
     }
     return graph;
-} 
-
+}
