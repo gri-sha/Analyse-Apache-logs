@@ -7,6 +7,17 @@
 #include <map>
 #include <regex>
 
+
+bool isInteger(const string& str) {
+    if (str.empty()) return false;
+    for (char c : str) {
+        if (!isdigit(c)) return false;
+    }
+    return true;
+}
+
+
+
 int main(int argc, char *argv[])
 {
     string logFile;
@@ -65,24 +76,30 @@ int main(int argc, char *argv[])
 
         else if (string(argv[i]) == "-t")
         {
-            if (i+1 < argc && isdigit(stoi(argv[i+1])) && stoi(argv[i+1]) > 0 && stoi(argv[i+1]) < 24)
-            {
-                hourFilter = stoi(argv[i+1]) ; 
-                filterTime = true;
-            }
+            if (i+1 < argc)
+                {
+                    string nextArg = argv[i + 1];
 
-            else if (i+1 == argc)
-            {
-                cerr << "Error : -t option but time missing" << endl;
+                    if (isInteger(nextArg)) 
+                    { 
+                    int value = stoi(nextArg);
+                    if (value >= 0 && value < 24) 
+                    {
+                        hourFilter = value;
+                        filterTime = true;
+                    } else {
+                        cerr << "Error: The time must be between 0 and 23." << endl;
+                        return 1;
+                    }
+                } else {
+                    cerr << "Error: -t option must be followed by a valid integer." << endl;
+                    return 1;
+                }
+            } else {
+                cerr << "Error: -t option but no time provided." << endl;
                 return 1;
             }
-            else
-            {
-                cerr << "Error : -t option but time missing" << endl;
-                return 1;
-            }
-
-        }
+        } 
 
 
         else if (string(argv[i]) == "-s")
