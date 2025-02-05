@@ -1,2 +1,3 @@
 Test de gestion d'erreur : 
-Option de compilation -g incomplète, car sans nom de fichier de sortie derrière
+Ce test permet de vérifier la gestion d'erreur. L'option de compilation -g est incomplète, car sans nom de fichier de sortie est derrière. 
+On peut pas produire un fichier .dot qui contient une description textuelle du graphe, car on a pas spécifié la destination.

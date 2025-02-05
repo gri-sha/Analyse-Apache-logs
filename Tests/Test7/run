@@ -1,1 +1,1 @@
-../../analog -g fichier.log
+../../analog -g output.dot fichier.log
