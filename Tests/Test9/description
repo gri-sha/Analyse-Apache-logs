@@ -1,1 +1,3 @@
-Test de gestion d'erreur : manque le nom du fichier log
+Test of "-e" flag with NON-valid extention: "php".
+The extention is false since there is no '.' at the beginning.
+There sould be an error generated.

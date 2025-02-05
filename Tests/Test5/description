@@ -1,3 +1,2 @@
-Ce test permet de vérifier l'option de compilation -e qui permet d’exclure tous les documents qui ont une extension de type image, css ou 
-javascript. Dans le fichier.log fournit en entrée du programme, il y a un log de type image (.jpg) qui va être exclus. La sortie doit contenir 
-just les autres 5 fichiers .html.
+Test of "-g" flag without precising the name.
+Output should be the message about creation of "graph.dot" file.

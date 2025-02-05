@@ -1,0 +1,1 @@
+../../analog ../../assets/exemple.log -s intranet.fr -g && cat graph.dot

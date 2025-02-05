@@ -1,0 +1,13 @@
+Dot-file graph.dot generated.
+digraph  {
+  "/image.jpg";
+  "/page3.html";
+  "intranet-if.insa-lyon.fr";
+  "/page2.html";
+  "intranet-if.insa-lyon.fr" -> "/image.jpg" [label="1"];
+  "/page2.html" -> "/page3.html" [label="1"];
+  "intranet-if.insa-lyon.fr" -> "intranet-if.insa-lyon.fr" [label="1"];
+  "intranet-if.insa-lyon.fr" -> "/page2.html" [label="1"];
+  "/page3.html" -> "/page2.html" [label="1"];
+  "/page1.html" -> "/page2.html" [label="1"];
+}

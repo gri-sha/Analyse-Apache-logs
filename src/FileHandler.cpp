@@ -184,7 +184,8 @@ string FileHandler::extractDomain(const string& url, const string& base)
     else
     {
         startPos = 0;
-        external_link = false;
+        if (base != "")
+            external_link = false;
     }
 
     // extract the domain
