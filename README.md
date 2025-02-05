@@ -31,9 +31,10 @@ This will generate top 10 visited resources in terminal.
 
 ## Flags
 
-`-e` : exclude every resourse except .html in the domain of provided server
-`-g <graph-name.dot>` : generate graph in <graph-name.dot> file
-`-t <hour>` : consider only visits in interval [h, h+1]
+- `-e` : exclude every resourse except .html in the domain of provided server
+- `-g <graph-name.dot>` : generate graph in <graph-name.dot> file
+- `-t <hour>` : consider only visits in interval [h, h+1]
+- `-s <server>` : change default server name 
 
 ## Prerequisites
 

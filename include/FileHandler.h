@@ -15,8 +15,32 @@
 #include <vector>
 using namespace std;
 
+struct logStruct;
+
+class FileHandler
+{
+public:
+    static Graph *readDocument(const string &fileName,
+                               const string &baseURL,
+                               const string &ext,
+                               bool excludeExtensions,
+                               bool filterTime,
+                               int hourFilter,
+                               int n,
+                               bool dashIgnore);
+
+    static string extractDomain(const string &url, const string& base = "");
+private:
+    static bool readLine(ifstream &ifs, bool dashIgnore = false, logStruct *l = nullptr);
+    static int extractHourFromDateTime(const string &date);
+    static bool filterType(const string &domain, const string &ext);
+};
+
 struct logStruct
 {
+public:
+    friend class FileHandler; 
+private:
     string ipAddress;      // Adresse IP du client
     string identity;       // Identité (souvent '-')
     string user;           // Utilisateur authentifié (souvent '-')
@@ -28,25 +52,6 @@ struct logStruct
     string responseSize;   // Taille de la réponse en octets
     string referer;        // Référant (URL précédente)
     string userAgent;      // Agent utilisateur (navigateur)
-};
-
-class FileHandler
-{
-public:
-    FileHandler(const string &fileName, const string &baseURL) : fileName(fileName), baseURL(baseURL) {}
-    virtual ~FileHandler();
-
-    Graph* readDocument(bool excludeExtensions=false, bool filterTime=false, int hourFilter = -1, int n = -1, bool dashIgnore = false);
-    bool readLine(ifstream &fichier, bool dashIgnore = false, logStruct* l=NULL);
-
-    static string extractDomain(const string url);
-    int extractHourFromDateTime(const string &date) const;
-    bool filterType(string domain) const;
-
-
-protected:
-    string fileName;
-    const string baseURL = "intranet-if.insa-lyon.fr";
 };
 
 #endif
