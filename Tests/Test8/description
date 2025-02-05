@@ -1,2 +1,2 @@
-Test de gestion d'erreur : 
-Option de compilation -t incomplète, l'heure de filtrage est manquante
+Test of "-e" flag with specific the extention: ".php".
+Output should contain the .php resources and the directories (end up with '/').

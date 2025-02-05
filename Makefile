@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -std=c++11 # -DSETTING -v
+CXXFLAGS = -Wall -std=c++11 #-DSETTING
 
 SRC = ./src
 INC = ./include

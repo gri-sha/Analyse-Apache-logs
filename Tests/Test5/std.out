@@ -1,3 +1,31 @@
-/page2.html (3 hits)
-/page3.html (1 hits)
-/page1.html (1 hits)
+Dot-file graph.dot generated.
+digraph  {
+  "/notesif/RSS/RSS_4IF.xml";
+  "/SiteWebIF/Intranet-etudiant.php";
+  "/temps/5IF41.html";
+  "/stages/bandeauFinal.jpg";
+  "/temps/3IF38.html";
+  "/cas/themes/insa/media/favicon.ico";
+  "/temps/";
+  "/stages/Listestage.php";
+  "/temps/style_emploi_du_temps.css";
+  "/temps/choix.gif";
+  "/temps/4IF40.html";
+  "/temps/FondInsa.jpg";
+  "/temps/3IF4.html";
+  "/temps/SoutenancesPFE.html";
+  "/notesif/RSS/RSS_4IF.xml" -> "/notesif/RSS/RSS_4IF.xml" [label="1"];
+  "-" -> "/SiteWebIF/Intranet-etudiant.php" [label="3"];
+  "/temps/" -> "/temps/5IF41.html" [label="4"];
+  "/SiteWebIF/Intranet-etudiant.php" -> "/stages/bandeauFinal.jpg" [label="5"];
+  "fr.search.yahoo.com" -> "/temps/3IF38.html" [label="8"];
+  "-" -> "/cas/themes/insa/media/favicon.ico" [label="6"];
+  "google.fr" -> "/temps/" [label="9"];
+  "/SiteWebIF/Intranet-etudiant.php" -> "/stages/Listestage.php" [label="2"];
+  "/temps/" -> "/temps/style_emploi_du_temps.css" [label="10"];
+  "/temps/3IF37.html" -> "/temps/choix.gif" [label="12"];
+  "/temps/4IF39.html" -> "/temps/4IF40.html" [label="11"];
+  "/temps/SoutenancesPFE.html" -> "/temps/FondInsa.jpg" [label="7"];
+  "/temps/3IF3.html" -> "/temps/3IF4.html" [label="13"];
+  "/SiteWebIF/Intranet-etudiant.php" -> "/temps/SoutenancesPFE.html" [label="14"];
+}

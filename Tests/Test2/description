@@ -1,2 +1,2 @@
-Ce test permet de vérifier l'option de compilation [-t heure], qui ne prend en compte que les logs entre heure et heure +1. 
-Le programme ne doit pas produire de fichier .dot, car l'option de compilation [-g nom_fichier.dot] n'est pas présente.
+Test of "-t" flag with valid integer.
+Output should consist only of logs belongong to [9h, 10h] time interval.

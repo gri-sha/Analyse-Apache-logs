@@ -1,1 +1,1 @@
-../../analog -g court.dot fichier.log
+(../../analog ../../assets/exemple2.log -g mygraph.dot && cat mygraph.dot)
