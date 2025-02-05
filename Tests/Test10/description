@@ -1,0 +1,2 @@
+Test de gestion d'erreur : 
+Option de compilation -t pas valide, l'heure de filtrage n'est pas entre 0 et 23

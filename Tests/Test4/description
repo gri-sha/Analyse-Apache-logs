@@ -1,1 +1,2 @@
-Ce test permet de vérifier l'option de compilation [-g nom_fichier.dot] qui permet de générer un fichier nom_fichier.dot en sortie. 
+Ce test permet de vérifier l'option de compilation [-g nom_fichier.dot] qui permet de générer un fichier nom_fichier.dot en sortie.
+Le programme doit produire un fichier .dot qui contient une description textuelle du graphe.

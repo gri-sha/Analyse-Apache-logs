@@ -1,1 +1,3 @@
-Ce test permet de vérifier le bon fonctionnement des trois options de compilation ensemble.
+Ce test permet de vérifier le bon fonctionnement des trois options de compilation ensemble. Dans le fichier.log fournit en entrée du programme, 
+il y a un log de type image (.jpg) qui va être exclus. La sortie doit contenir just les autres fichiers .html entre heure et heure +1 et 
+qui permet aussi de générer un fichier nom_fichier.dot en sortie.
