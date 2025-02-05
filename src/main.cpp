@@ -28,16 +28,14 @@ int main(int argc, char *argv[])
     bool generateDotFile = false;
     int hourFilter = -1;
     const regex urlPattern(R"(^((https?|ftp)://)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,6})(:[0-9]{1,5})?(\/.*)?$)"); 
-
+    bool logFileFound = false;
 
     if (argc == 1)
     {
         cerr << "Error : log file missing" << endl;
         return 1;
     }
-
-
-    bool logFileFound = false;
+    
 
     for (int i = 1; i < argc; ++i)  
     {
@@ -46,11 +44,20 @@ int main(int argc, char *argv[])
         if (arg.size() >= 4 && arg.rfind(".log") == arg.size() - 4)
         {
             logFile = arg;
+            // vérifier que le fichier existe
+            ifstream stream(logFile);
+            if (!stream.good())
+            {
+                cerr << "Error: Impossible to open the file." << endl;
+                return 1;
+            }
+
             logFileFound = true;
             break;  
         }
     }
 
+    // si pas de fichier log fournit
     if (!logFileFound)
     {
         std::cerr << "Error: log file missing" << std::endl;
