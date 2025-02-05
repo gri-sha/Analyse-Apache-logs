@@ -1,1 +1,1 @@
-Error: Invalid hour. Provide an hour between 0 and 23.
+Error: The time must be between 0 and 23.

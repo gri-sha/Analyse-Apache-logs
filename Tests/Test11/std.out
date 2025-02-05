@@ -1,4 +1,3 @@
-Dot-file graph.dot generated.
 digraph  {
   "/image.jpg";
   "/page3.html";
