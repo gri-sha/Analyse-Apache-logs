@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // 2 ou plus arguments => trouver lequel est le fichier .log
     for (int i = 1; i < argc; ++i)
     {
         if (i == logArgPos)
