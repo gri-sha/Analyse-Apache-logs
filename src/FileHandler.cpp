@@ -18,9 +18,6 @@
 #include <sstream>
 using namespace std;
 
-//---------- déclaration du destructeur
-FileHandler::~FileHandler() {}
-
 /* La fonction readLine permettant de lire une ligne du document.
 Renvoie True si la ligne est lue correctement, false sinon.
 A comme effet de bord de stocker la ligne dans le pointeur donné en entrée.
@@ -82,11 +79,10 @@ données d'entrée :
 
 Renvoie un graphe contenant les logs et les informations qui nous intéressent, selon les spécifications d'entrées.
 */
-Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int hourFilter, int n, bool dashIgnore)
+Graph *FileHandler::readDocument(const string &fileName, const string &baseURL, const string &ext, bool excludeExtensions, bool filterTime, int hourFilter, int n, bool dashIgnore)
 {
     Graph *graph = new Graph();
 
-    int count = 0;
     ifstream fichier(fileName, ios::in);
     if (!fichier.is_open())
     {
@@ -101,11 +97,13 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
         for (int i = 0; i < n; ++i)
         {
             readLine(fichier, dashIgnore, log);
-            string domainReferer = extractDomain(log->referer);
-            string domainResource = extractDomain(log->resource);
+            string domainReferer = extractDomain(log->referer, baseURL);
+            string domainResource = extractDomain(log->resource, baseURL);
+
             if (excludeExtensions)
-            {
-                if (filterType(domainResource))
+            {   
+                // we keep the directories and the files with rigth extentions
+                if (!filterType(domainResource, ext))
                 {
                     continue;
                 }
@@ -135,11 +133,12 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
 #endif
                 continue;
             }
-            string domainReferer = extractDomain(log->referer);
-            string domainResource = log->resource;
+            string domainResource = extractDomain(log->resource, baseURL);
+            string domainReferer = extractDomain(log->referer, baseURL);
+
             if (excludeExtensions)
             {
-                if (filterType(domainResource))
+                if (!filterType(domainResource, ext))
                 {
                     continue;
                 }
@@ -154,7 +153,7 @@ Graph *FileHandler::readDocument(bool excludeExtensions, bool filterTime, int ho
             }
             // si le log correspond à tous les critères spécifiés par l'utilisateur, on l'ajoute au graphe.
             graph->addVisit(domainResource, domainReferer);
-            ++count;
+            
         }
     }
     delete log;
@@ -168,7 +167,7 @@ données d'entrée :
 sortie :
 Simplifie l'URL donnée en entrée
 */
-string FileHandler::extractDomain(const string url)
+string FileHandler::extractDomain(const string& url, const string& base)
 {
     if (url == "-")
         return url;
@@ -200,7 +199,7 @@ string FileHandler::extractDomain(const string url)
     if (domain.find("www.") == 0)
         domain = domain.substr(4);
 
-    if (domain == "intranet-if.insa-lyon.fr")
+    if (domain == base)
         external_link = false;
 
     // return the dmain of external_link
@@ -234,7 +233,7 @@ string FileHandler::extractDomain(const string url)
     }
 
     string res;
-    if (domain.find("intranet-if.insa-lyon.fr") == string::npos)
+    if (domain.find(base) == string::npos)
     {
         res = domain + path;
     }
@@ -260,7 +259,7 @@ données d'entrée :
 sortie :
 l'heure à laquelle l'utilisateur a consulté cette page
 */
-int FileHandler::extractHourFromDateTime(const string &date) const
+int FileHandler::extractHourFromDateTime(const string &date)
 {
     size_t colonPos = date.find(':');
     if (colonPos != string::npos)
@@ -278,16 +277,22 @@ données d'entrée :
 sortie :
 booléen : false si le type est filtré
 */
-bool FileHandler::filterType(string domain) const
+bool FileHandler::filterType(const string& domain, const string& ext)
 {
-    if (domain.find(".pgn") != string::npos ||
-        domain.find(".jpg") != string::npos ||
-        domain.find(".jpeg") != string::npos ||
-        domain.find(".css") != string::npos ||
-        domain.find(".js") != string::npos ||
-        domain.find(".heic") != string::npos)
+    // if the resource is a directory, we keep it
+    if (domain[domain.length()-1] == '/')
     {
         return true;
     }
-    return false;
+    // if the resource is not a directory, we filter it
+    int n =  ext.length();
+    if (domain.length() >= n)
+    {
+        // compare the last 5 characters with extention
+        return domain.compare(domain.length() - n, n, ext) == 0;
+    }
+    else
+    {
+        return false;
+    }
 }

@@ -7,7 +7,6 @@
 #include <map>
 #include <regex>
 
-
 bool isInteger(const string& str) {
     if (str.empty()) return false;
     for (char c : str) {
@@ -16,19 +15,21 @@ bool isInteger(const string& str) {
     return true;
 }
 
-
-
 int main(int argc, char *argv[])
 {
-    string logFile;
-    string dotFile; 
+    string logFile; 
     string baseURL = "intranet-if.insa-lyon.fr";
-    bool excludeExtensions = false;
-    bool filterTime = false;
-    bool generateDotFile = false;
-    int hourFilter = -1;
-    const regex urlPattern(R"(^((https?|ftp)://)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,6})(:[0-9]{1,5})?(\/.*)?$)"); 
 
+    bool excludeExtensions = false;
+    string ext = ".html";
+
+    int hourFilter = -1;
+    bool filterTime = false;
+
+    string dotFile = "graph.dot";
+    bool generateDotFile = false;
+
+    const regex urlPattern(R"(^((https?|ftp)://)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,6})(:[0-9]{1,5})?(\/.*)?$)"); 
 
     if (argc == 1)
     {
@@ -36,8 +37,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-
-    bool logFileFound = false;
+    int logArgPos = -1;
 
     for (int i = 1; i < argc; ++i)  
     {
@@ -46,30 +46,27 @@ int main(int argc, char *argv[])
         if (arg.size() >= 4 && arg.rfind(".log") == arg.size() - 4)
         {
             logFile = arg;
-            logFileFound = true;
+            logArgPos = i;
             break;  
         }
     }
 
-    if (!logFileFound)
+    if (logArgPos < 0)
     {
         std::cerr << "Error: log file missing" << std::endl;
         return 1;
     }
 
-
     // 2 ou plus arguments => trouver lequel est le fichier .log
     for (int i = 1; i < argc; ++i)
     {
+        if (i == logArgPos)
+            continue;
         
         if (string(argv[i]) == "-g")
         {
-            if (i+1 < argc && string(argv[i+1]).rfind(".dot") == string(argv[i+1]).size() - 4)
+            if (i+1 < argc && string(argv[i+1]).rfind(".dot") == string(argv[i+1]).size() - 4 && string(argv[i+1]).length() > 4)
                 dotFile = argv[i+1];
-            else
-            {
-                dotFile = "graph.dot"; // nom de dot file par défaut
-            }
             generateDotFile = true;
         }
 
@@ -106,17 +103,11 @@ int main(int argc, char *argv[])
         {
             if (i+1 < argc && regex_match(argv[i+1], urlPattern))
             {
-                baseURL = string(argv[i+1]) ; 
-            }
-            
-            else if (i+1 == argc)
-            {
-                cerr << "Error : -s option but URL missing" << endl;
-                return 1;
+                baseURL = FileHandler::extractDomain(string(argv[i+1]));
             }
             else 
             {
-                cerr << "Error : -s option but not a valid URL" << endl;
+                cerr << "Error : -s option but a valid URL is missing" << endl;
                 return 1;
             }
         }
@@ -124,22 +115,32 @@ int main(int argc, char *argv[])
         else if (string(argv[i]) == "-e")
         {
             excludeExtensions = true;
+            
+            if (i+1 < argc && argv[i+1][0]=='.')
+            {
+                ext = string(argv[i+1]);
+
+            }
         }
         
-        // else if (string(argv[i]).rfind(".log") == string(argv[i]).size() - 4)
-        // {
-        //     // Ne rien faire : on a déjà traité le fichier log
-        // }
-        // else
-        // {
-        //     cerr << "Error: Unknown parameter '" << argv[i] << "' in the command line" << std::endl;
-        //     return 1;
-        // }   
+        else
+        {
+            cerr << "Error: Unknown parameter '" << argv[i] << "' in the command line" << std::endl;
+            return 1;
+        }   
 
     }
 
-    FileHandler *myFileHandler = new FileHandler(logFile, baseURL);
-    Graph *graph = myFileHandler->readDocument(excludeExtensions , filterTime, hourFilter);
+    cout << "fileName: " << logFile << endl;
+    cout << "base: " << baseURL << endl;
+
+    cout << "Extention: " << ext << endl;
+    cout << "Exclude: " << excludeExtensions << endl;
+
+    cout << "filterTime: " << filterTime << endl;
+    cout << "Hour: " << hourFilter << endl;
+
+    Graph *graph = FileHandler::readDocument(logFile, baseURL, ext, excludeExtensions , filterTime, hourFilter, -1, false);
 
     if (generateDotFile)
     {
@@ -148,6 +149,5 @@ int main(int argc, char *argv[])
     }
     graph->displayTopDocuments(); 
     delete graph;
-    delete myFileHandler;
     return 0;
 }
